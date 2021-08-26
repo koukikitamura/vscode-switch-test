@@ -23,7 +23,7 @@ export const switchTestCommand = () => {
 }
 
 const openFiles = (fileName: string) => {
-  vscode.workspace.findFiles(fileName).then((files) => {
+  vscode.workspace.findFiles(`**/${fileName}`).then((files) => {
     files.forEach((file) => vscode.window.showTextDocument(file))
   })
 }

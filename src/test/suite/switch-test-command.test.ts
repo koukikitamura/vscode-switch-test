@@ -28,7 +28,7 @@ describe("switch-test-command module", () => {
 
       switchTestCommand.switchTestCommand()
 
-      expect(findFiles).to.have.been.called.with("sample.rb")
+      expect(findFiles).to.have.been.called.with("**/sample.rb")
     })
   })
 
