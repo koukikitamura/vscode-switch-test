@@ -1,4 +1,9 @@
 {
+	"publisher": "koukikitamura",
+	"repository": {
+		"type:": "git",
+		"url": "https://github.com/koukikitamura/vscode-switch-test"
+	},
 	"name": "switch-test",
 	"displayName": "Switch Test",
 	"description": "Switch between file and test file.",

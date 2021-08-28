@@ -12,23 +12,87 @@ describe("switch-test-command module", () => {
   suite("switchTestCommand", () => {
     test("Switch test file", () => {
       const findFiles = chai.spy(() =>
-        Promise.resolve(vscode.Uri.file("dummy"))
+        Promise.resolve([vscode.Uri.file("dummy")])
       )
 
-      const switchTestCommand = proxyquire("../../switch-test-command", {
+      const proxyCommand = proxyquire("../../switch-test-command", {
         vscode: {
           window: {
-            activeTextEditor: { document: { fileName: "sample_spec.rb" } }
+            activeTextEditor: {
+              document: {
+                fileName: "/Users/michael/dev/dummy_project/sample_spec.rb"
+              }
+            },
+            showTestDocument: () => {}
           },
           workspace: {
+            getWorkspaceFolder: () => ({
+              uri: { path: "/Users/michael/dev/dummy_project" }
+            }),
             findFiles
           }
         }
       }) as typeof command
 
-      switchTestCommand.switchTestCommand()
+      proxyCommand.switchTestCommand()
 
-      expect(findFiles).to.have.been.called.with("**/sample.rb")
+      expect(findFiles).to.have.been.called.with("sample.rb")
+    })
+  })
+
+  suite("getCandidatesDirPaths", () => {
+    describe("opened application code file", () => {
+      test("file under top directory", () => {
+        expect(command.getCandidatesDirPaths("sample.rb")).to.deep.equal([
+          ".",
+          "test",
+          "spec"
+        ])
+      })
+
+      test("file under nested directory", () => {
+        expect(
+          command.getCandidatesDirPaths("src/bar/sample.rb")
+        ).to.deep.equal([
+          "src/bar",
+          "src/bar/test",
+          "src/bar/spec",
+          "test/bar",
+          "spec/bar"
+        ])
+      })
+    })
+
+    describe("opened test file", () => {
+      test("test file under ./ from application code file", () => {
+        expect(
+          command.getCandidatesDirPaths("src/bar/sample_spec.rb")
+        ).to.deep.equal(["src/bar"])
+      })
+
+      test("test file under ./test from application code file", () => {
+        expect(
+          command.getCandidatesDirPaths("src/bar/test/sample_test.rb")
+        ).to.deep.equal(["src/bar"])
+      })
+
+      test("test file under ./spec from application code file", () => {
+        expect(
+          command.getCandidatesDirPaths("src/bar/spec/sample_spec.rb")
+        ).to.deep.equal(["src/bar"])
+      })
+
+      test("test file under /test/** from application code file", () => {
+        expect(
+          command.getCandidatesDirPaths("spec/bar/sample_spec.rb")
+        ).to.deep.equal(["*/bar"])
+      })
+
+      test("test file under /test/** from application code file", () => {
+        expect(
+          command.getCandidatesDirPaths("test/bar/sample_test.rb")
+        ).to.deep.equal(["*/bar"])
+      })
     })
   })
 
