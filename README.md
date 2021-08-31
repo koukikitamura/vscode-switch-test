@@ -1,6 +1,13 @@
 # VSCode Switch Test
 
 This extension adds the ability to switch application code & test code in a moment.
+The list of supported test file structure is:
+
+- ./
+- ./test
+- ./spec
+- /test
+- /spec
 
 ## Usage
 
