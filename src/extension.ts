@@ -6,7 +6,7 @@ import { switchTestCommand } from "./switch-test-command"
 
 export const activate = (context: vscode.ExtensionContext) => {
   let disposable = vscode.commands.registerCommand(
-    "extension.switch-test",
+    "extension.switchTest",
     switchTestCommand
   )
 

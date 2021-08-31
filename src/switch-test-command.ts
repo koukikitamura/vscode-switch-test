@@ -2,16 +2,6 @@ import vscode = require("vscode")
 import path = require("path")
 import { uniq } from "./util"
 
-const testFileSuffixList = [
-  ".test",
-  "_test",
-  "-test",
-  ".spec",
-  "_spec",
-  "-spec",
-  ".stories"
-]
-
 // The relative structure of the application file to the test file supports:
 //
 // - ./
@@ -61,25 +51,40 @@ const openFiles = async (fileName: string): Promise<boolean> => {
   })
 }
 
-const getFilePathCandidates = (fileRelativePath: string): string[] => {
+const getFilePathCandidates = (
+  fileRelativePath: string,
+  testFileSuffixesArg: string[] = []
+): string[] => {
   const fileName = path.basename(fileRelativePath)
+  const extension = path.extname(fileName)
+  const testFileSuffixes =
+    testFileSuffixesArg.length > 0
+      ? testFileSuffixesArg
+      : getTestFileSuffixes(extension)
 
   const filePathCandidates: string[] = []
 
-  getCandidatesDirPaths(fileRelativePath).forEach((dirCandidate) => {
-    getCandidateFileNames(fileName).forEach((fileNameCandidate) => {
-      filePathCandidates.push(path.join(dirCandidate, fileNameCandidate))
-    })
-  })
+  getCandidatesDirPaths(fileRelativePath, testFileSuffixes).forEach(
+    (dirCandidate) => {
+      getCandidateFileNames(fileName, testFileSuffixes).forEach(
+        (fileNameCandidate) => {
+          filePathCandidates.push(path.join(dirCandidate, fileNameCandidate))
+        }
+      )
+    }
+  )
 
   return filePathCandidates
 }
 
-export const getCandidatesDirPaths = (fileRelativePath: string): string[] => {
+export const getCandidatesDirPaths = (
+  fileRelativePath: string,
+  testFileSuffixes: string[]
+): string[] => {
   const dirPath = path.dirname(fileRelativePath)
   const fileName = path.basename(fileRelativePath)
 
-  const { isTestFile } = checkTestFile(fileName)
+  const { isTestFile } = checkTestFile(fileName, testFileSuffixes)
   const switchToTestFile = !isTestFile
 
   let candidates: string[] = []
@@ -134,22 +139,26 @@ const dropBottomDir = (relativePath: string): string => {
   }
 }
 
-export const getCandidateFileNames = (fileName: string): string[] => {
+export const getCandidateFileNames = (
+  fileName: string,
+  testFileSuffixes: string[]
+): string[] => {
   const extension = path.extname(fileName)
   const excludeExtension = path.basename(fileName, extension)
 
-  const { isTestFile, testSuffix } = checkTestFile(fileName)
+  const { isTestFile, testSuffix } = checkTestFile(fileName, testFileSuffixes)
   if (isTestFile) {
     return [excludeExtension.slice(0, -testSuffix.length) + extension]
   } else {
-    return testFileSuffixList.map(
+    return testFileSuffixes.map(
       (suffix) => excludeExtension + suffix + extension
     )
   }
 }
 
 const checkTestFile = (
-  fileName: string
+  fileName: string,
+  testFileSuffixes: string[]
 ): { isTestFile: boolean; testSuffix: string } => {
   const extension = path.extname(fileName)
   const excludeExtension = path.basename(fileName, extension)
@@ -157,7 +166,7 @@ const checkTestFile = (
   let isTestFile = false
   let testSuffix = ""
 
-  testFileSuffixList.forEach((suffix) => {
+  testFileSuffixes.forEach((suffix) => {
     if (excludeExtension.endsWith(suffix)) {
       isTestFile = true
       testSuffix = suffix
@@ -165,4 +174,39 @@ const checkTestFile = (
   })
 
   return { isTestFile, testSuffix }
+}
+
+const testFileAllSuffixes = [
+  ".test",
+  "_test",
+  "-test",
+  ".spec",
+  "_spec",
+  "-spec",
+  ".stories"
+]
+
+type testFileSuffixConfig = testFileSuffixConfigItem[]
+
+type testFileSuffixConfigItem = {
+  extension: string
+  testFileSuffixes: string[]
+}
+
+export const getTestFileSuffixes = (extension: string): string[] => {
+  const config = vscode.workspace
+    .getConfiguration("switchTest")
+    .get<testFileSuffixConfig>("testFileSuffix")
+
+  if (!config) {
+    return testFileAllSuffixes
+  }
+
+  for (let item of config) {
+    if (extension === item.extension) {
+      return item.testFileSuffixes
+    }
+  }
+
+  return testFileAllSuffixes
 }

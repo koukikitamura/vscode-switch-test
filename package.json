@@ -15,24 +15,77 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:extension.switch-test"
+		"onCommand:extension.switchTest"
 	],
 	"main": "./dist/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "extension.switch-test",
+				"command": "extension.switchTest",
 				"title": "Switch Test"
 			}
 		],
 		"keybindings": [
 			{
-				"command": "extension.switch-test",
+				"command": "extension.switchTest",
 				"key": "ctrl+t",
 				"mac": "cmd+t",
 				"when": "editorTextFocus"
 			}
-		]
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Switch test",
+			"properties": {
+				"switchTest.foo": {
+					"type": "string",
+					"default": "bar",
+					"description": "foo"
+				},
+				"switchTest.testFileSuffix": {
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"extension": {
+								"type": "string",
+								"description": "file extension"
+							},
+
+							"testFileSuffixes": {
+								"type": "array",
+								"description": "test file suffix list",
+								"items": {
+									"type": "string"
+								}
+							}
+						}
+					},
+					"default": [
+						{
+							"extension": ".rb",
+							"testFileSuffixes": ["_test", "_spec"]
+						},
+						{
+							"extension": ".go",
+							"testFileSuffixes": ["_test"]
+						},
+						{
+							"extension": ".js",
+							"testFileSuffixes": [".test", ".spec"]
+						},
+						{
+							"extension": ".ts",
+							"testFileSuffixes": [".test", ".spec"]
+						},
+						{
+							"extension": ".jsx",
+							"testFileSuffixes": [".stories"]
+						}
+					]
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run package",

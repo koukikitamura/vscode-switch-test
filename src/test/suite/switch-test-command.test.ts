@@ -26,10 +26,17 @@ describe("switch-test-command module", () => {
             showTestDocument: () => {}
           },
           workspace: {
+            findFiles,
             getWorkspaceFolder: () => ({
               uri: { path: "/Users/michael/dev/dummy_project" }
             }),
-            findFiles
+            getConfiguration: () => {
+              return {
+                get: () => [
+                  { extension: ".rb", testFileSuffixes: ["_test", "_spec"] }
+                ]
+              }
+            }
           }
         }
       }) as typeof command
@@ -41,18 +48,18 @@ describe("switch-test-command module", () => {
   })
 
   suite("getCandidatesDirPaths", () => {
-    describe("opened application code file", () => {
-      test("file under top directory", () => {
-        expect(command.getCandidatesDirPaths("sample.rb")).to.deep.equal([
+    describe("Opened application code file", () => {
+      test("File under top directory", () => {
+        expect(command.getCandidatesDirPaths("sample.rb", [])).to.deep.equal([
           ".",
           "test",
           "spec"
         ])
       })
 
-      test("file under nested directory", () => {
+      test("File under nested directory", () => {
         expect(
-          command.getCandidatesDirPaths("src/bar/sample.rb")
+          command.getCandidatesDirPaths("src/bar/sample.rb", [])
         ).to.deep.equal([
           "src/bar",
           "src/bar/test",
@@ -63,34 +70,38 @@ describe("switch-test-command module", () => {
       })
     })
 
-    describe("opened test file", () => {
-      test("test file under ./ from application code file", () => {
+    describe("Opened test file", () => {
+      test("Test file under ./ from application code file", () => {
         expect(
-          command.getCandidatesDirPaths("src/bar/sample_spec.rb")
+          command.getCandidatesDirPaths("src/bar/sample_spec.rb", ["_spec"])
         ).to.deep.equal(["src/bar"])
       })
 
-      test("test file under ./test from application code file", () => {
+      test("Test file under ./test from application code file", () => {
         expect(
-          command.getCandidatesDirPaths("src/bar/test/sample_test.rb")
+          command.getCandidatesDirPaths("src/bar/test/sample_test.rb", [
+            "_test"
+          ])
         ).to.deep.equal(["src/bar"])
       })
 
-      test("test file under ./spec from application code file", () => {
+      test("Test file under ./spec from application code file", () => {
         expect(
-          command.getCandidatesDirPaths("src/bar/spec/sample_spec.rb")
+          command.getCandidatesDirPaths("src/bar/spec/sample_spec.rb", [
+            "_spec"
+          ])
         ).to.deep.equal(["src/bar"])
       })
 
-      test("test file under /test/** from application code file", () => {
+      test("Test file under /test/** from application code file", () => {
         expect(
-          command.getCandidatesDirPaths("spec/bar/sample_spec.rb")
+          command.getCandidatesDirPaths("spec/bar/sample_spec.rb", ["_spec"])
         ).to.deep.equal(["*/bar"])
       })
 
-      test("test file under /test/** from application code file", () => {
+      test("Test file under /test/** from application code file", () => {
         expect(
-          command.getCandidatesDirPaths("test/bar/sample_test.rb")
+          command.getCandidatesDirPaths("test/bar/sample_test.rb", ["_test"])
         ).to.deep.equal(["*/bar"])
       })
     })
@@ -98,22 +109,29 @@ describe("switch-test-command module", () => {
 
   suite("getCandidateFileNames", () => {
     test("Pass test file", () => {
-      const candidates = command.getCandidateFileNames("sample_spec.rb")
+      const candidates = command.getCandidateFileNames("sample_spec.rb", [
+        "_spec",
+        "_test"
+      ])
 
       expect(candidates).to.deep.equal(["sample.rb"])
     })
 
     test("Pass not test file", () => {
-      const candidates = command.getCandidateFileNames("sample.rb")
+      const candidates = command.getCandidateFileNames("sample.rb", [
+        "_test",
+        "_spec"
+      ])
 
-      expect(candidates).to.deep.equal([
-        "sample.test.rb",
-        "sample_test.rb",
-        "sample-test.rb",
-        "sample.spec.rb",
-        "sample_spec.rb",
-        "sample-spec.rb",
-        "sample.stories.rb"
+      expect(candidates).to.deep.equal(["sample_test.rb", "sample_spec.rb"])
+    })
+  })
+
+  suite("getTestFileSuffixes", () => {
+    test("Get default value", () => {
+      expect(command.getTestFileSuffixes(".rb")).to.deep.equal([
+        "_test",
+        "_spec"
       ])
     })
   })
