@@ -1,13 +1,14 @@
 {
+	"version": "0.0.1",
+	"name": "switch-test",
+	"displayName": "Switch Test",
+	"description": "Switch between file and test file.",
+	"icon": "assets/logo.png",
 	"publisher": "koukikitamura",
 	"repository": {
 		"type:": "git",
 		"url": "https://github.com/koukikitamura/vscode-switch-test"
 	},
-	"name": "switch-test",
-	"displayName": "Switch Test",
-	"description": "Switch between file and test file.",
-	"version": "0.0.1",
 	"engines": {
 		"vscode": "^1.59.0"
 	},
@@ -37,12 +38,8 @@
 			"type": "object",
 			"title": "Switch test",
 			"properties": {
-				"switchTest.foo": {
-					"type": "string",
-					"default": "bar",
-					"description": "foo"
-				},
 				"switchTest.testFileSuffix": {
+					"description": "test file suffixes per extension",
 					"type": "array",
 					"items": {
 						"type": "object",
@@ -96,7 +93,8 @@
 		"test-watch": "tsc -watch -p ./",
 		"pretest": "yarn run test-compile && yarn run lint",
 		"lint": "eslint src --ext ts",
-		"test": "node ./out/test/runTest.js"
+		"test": "node ./out/test/runTest.js",
+		"build": "vsce package"
 	},
 	"devDependencies": {
 		"@types/chai": "^4.2.21",
