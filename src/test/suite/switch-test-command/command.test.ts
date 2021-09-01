@@ -4,7 +4,7 @@ import * as spies from "chai-spies"
 import { describe, suite, test } from "mocha"
 import * as proxyquire from "proxyquire"
 import * as vscode from "vscode"
-import * as command from "../../switch-test-command"
+import * as command from "../../../switch-test-command/command"
 
 chai.use(spies)
 
@@ -15,7 +15,7 @@ describe("switch-test-command module", () => {
         Promise.resolve([vscode.Uri.file("dummy")])
       )
 
-      const proxyCommand = proxyquire("../../switch-test-command", {
+      const proxyCommand = proxyquire("../../../switch-test-command/command", {
         vscode: {
           window: {
             activeTextEditor: {

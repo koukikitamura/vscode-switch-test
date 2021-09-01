@@ -1,14 +1,7 @@
 import vscode = require("vscode")
 import path = require("path")
-import { uniq } from "./util"
-
-// The relative structure of the application file to the test file supports:
-//
-// - ./
-// - ./test
-// - ./spec
-// - /test
-// - /spec
+import { uniq } from "../util"
+import { switchCache } from "./cache"
 
 export const switchTestCommand = async () => {
   const activeEditor = vscode.window.activeTextEditor
@@ -23,12 +16,17 @@ export const switchTestCommand = async () => {
     return
   }
 
-  const rootDirAbsolutePath = currentWorkspace.uri.path
+  const projectDirAbsolutePath = currentWorkspace.uri.path
   const openedFileAbsolutePath = activeEditor.document.fileName
   const openedFileRelativePath = path.relative(
-    rootDirAbsolutePath,
+    projectDirAbsolutePath,
     openedFileAbsolutePath
   )
+
+  const cachedPath = switchCache.read(openedFileAbsolutePath)
+  if (cachedPath && (await openFiles(cachedPath))) {
+    return
+  }
 
   let fileOpened = false
   for (let p of getFilePathCandidates(openedFileRelativePath)) {
@@ -36,6 +34,10 @@ export const switchTestCommand = async () => {
       return
     }
     fileOpened = await openFiles(p)
+
+    if (fileOpened) {
+      switchCache.write(projectDirAbsolutePath, openedFileRelativePath, p)
+    }
   }
 }
 

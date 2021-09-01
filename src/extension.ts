@@ -1,5 +1,5 @@
 import vscode = require("vscode")
-import { switchTestCommand } from "./switch-test-command"
+import { switchTestCommand } from "./switch-test-command/command"
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
