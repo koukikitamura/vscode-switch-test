@@ -2,7 +2,7 @@
 	"version": "0.0.1",
 	"name": "switch-test",
 	"displayName": "Switch Test",
-	"description": "Switch between file and test file.",
+	"description": "Switch between application code file and test code file.",
 	"icon": "assets/logo.png",
 	"publisher": "koukikitamura",
 	"repository": {

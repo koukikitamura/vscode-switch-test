@@ -9,6 +9,8 @@ The list of supported test file structure is:
 - /test
 - /spec
 
+![Swith Test Demo](./assets/demo.gif)
+
 ## Usage
 
 1. Open and focus on application code file or test code file.
