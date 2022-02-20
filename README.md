@@ -11,6 +11,10 @@ The list of supported test file structure is:
 
 ![Swith Test Demo](./assets/demo.gif)
 
+## Installation
+
+Download from [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=koukikitamura.switch-test)
+
 ## Usage
 
 1. Open and focus on application code file or test code file.
